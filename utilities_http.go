@@ -68,48 +68,48 @@ func RespondNoStruct(w http.ResponseWriter, code int, payload interface{}) {
 }
 
 // GetRequest : Make Get Request to Service/API
-func GetRequest(endpoint string) ([]byte, error) {
+func GetRequest(endpoint string) (*http.Response, []byte, error) {
 	resp, err := http.Get(endpoint)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return resp, nil, err
 	}
 	io.Copy(ioutil.Discard, resp.Body)
 
-	return body, nil
+	return resp, body, nil
 }
 
 // PostRequest :
-func PostRequest(endpoint string, payload interface{}) ([]byte, error) {
+func PostRequest(endpoint string, payload interface{}) (*http.Response, []byte, error) {
 	jsonValue, _ := json.Marshal(payload)
 	resp, err := http.Post(endpoint, "application/json", bytes.NewBuffer(jsonValue))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return resp, nil, err
 	}
 	io.Copy(ioutil.Discard, resp.Body)
 
-	return body, nil
+	return resp, body, nil
 }
 
-// SendRequest :
-func SendRequest(method string, url string, header map[string]string, payload interface{}) (*http.Response, []byte, error) {
+// PostRequestWithHeader :
+func PostRequestWithHeader(method string, endpoint string, header map[string]string, payload interface{}) (*http.Response, []byte, error) {
 	requestBody, err := json.Marshal(payload)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	httpRequest, err := http.NewRequest(method, url, bytes.NewBuffer(requestBody))
+	httpRequest, err := http.NewRequest(method, endpoint, bytes.NewBuffer(requestBody))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -135,40 +135,40 @@ func SendRequest(method string, url string, header map[string]string, payload in
 }
 
 // PostFormRequest :
-func PostFormRequest(endpoint string, payload interface{}) ([]byte, error) {
+func PostFormRequest(endpoint string, payload interface{}) (*http.Response, []byte, error) {
 	form := url.Values{}
 
 	err := encoder.Encode(payload, form)
 	if err != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	resp, err := http.PostForm(endpoint, form)
 	if err != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
-		return nil, err
+		return nil, nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
-		return nil, err
+		return resp, nil, err
 	}
 	io.Copy(ioutil.Discard, resp.Body)
 
-	return body, nil
+	return resp, body, nil
 }
 
 // PostMultipartFormData :
-func PostMultipartFormData(endpoint string, payload interface{}) ([]byte, error) {
+func PostMultipartFormData(endpoint string, payload interface{}) (*http.Response, []byte, error) {
 	form := url.Values{}
 
 	err := encoder.Encode(payload, form)
 	if err != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	bodyBuf := &bytes.Buffer{}
@@ -185,13 +185,13 @@ func PostMultipartFormData(endpoint string, payload interface{}) ([]byte, error)
 
 	resp, err := http.Post(endpoint, contentType, bodyBuf)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return resp, nil, err
 	}
 
-	return body, nil
+	return resp, body, nil
 }
