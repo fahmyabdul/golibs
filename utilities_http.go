@@ -102,8 +102,8 @@ func PostRequest(endpoint string, payload interface{}) (*http.Response, []byte, 
 	return resp, body, nil
 }
 
-// PostRequestWithHeader :
-func PostRequestWithHeader(method string, endpoint string, header map[string]string, payload interface{}) (*http.Response, []byte, error) {
+// SendRequestWithHeader :
+func SendRequestWithHeader(method string, endpoint string, header map[string]string, payload interface{}) (*http.Response, []byte, error) {
 	requestBody, err := json.Marshal(payload)
 	if err != nil {
 		return nil, nil, err
